@@ -1,6 +1,7 @@
 # chrometile
 Tiling Widow Manager for ChromeOS
-
 by Gavin Brock
 
-Design borrows heavily from the user inteface of https://github.com/ianyh/Amethyst.
+[Download from Chrome Webstore](https://chrome.google.com/webstore/detail/chrometile/aikaaejchodabfpkipfonnekofgepakh)
+
+Design borrows heavily from the user interface of [Amethyst for OS-X](https://github.com/ianyh/Amethyst).
