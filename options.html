@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>ChromeTile Options</title>
+    </head>
+    <body>
+        <div id="warning">
+            <h1>This does not seem to be a ChromeBook</h1>
+            ChromeTile is probably not what you want on this browser. It has
+            been disabled by default.
+        </div>
+
+        <h1>Enable ChromeTile</h1>
+        <input type="checkbox" id="enabled">Enable ChromeTile</input>
+        
+        <div id="options">
+            <h1>ChromeTile Options</h1>
+
+            <h2>Appearance</h2>
+            Margin <input type="number" id="margin" size=2><br>
+
+            <h2>Hotkeys</h2>
+            To change the hotkey bindings visit the <a id="configure" href="#">extensions keyboard shortcuts</a> page.
+            <table>
+                <tbody id="keys">
+                    <tr>
+                        <th>Key Binding</th>
+                        <th>Description</th>
+                    </th>
+                </tbody>
+            </table>
+        </div>
+    </body>
+    <script src="is_chrome_book.js"></script>
+    <script src="options.js"></script>
+</html>

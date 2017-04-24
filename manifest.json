@@ -1,0 +1,47 @@
+{
+  "manifest_version": 2,
+
+  "name": "ChromeTile",
+  "description": "Tiling Window Manager for ChromeOS",
+  "version": "0.1",
+  "icons": {"128": "icon.png"},
+
+  "permissions": [
+    "tabs",
+    "storage",
+    "system.display"
+  ],
+
+  "options_ui": {
+    "page": "options.html"
+  },
+
+  "background" : {
+    "scripts": [
+        "is_chrome_book.js",
+        "background.js"
+    ],
+    "persistent": true
+  },
+
+  "commands": {
+    "001-shrink-main-pane":           { "description": "shrink the main pane (Suggest Alt+Shift+H)", "suggested_key": { "default": "Alt+Shift+H" } },
+    "002-expand-main-pane":           { "description": "expand the main pane (Suggest Alt+Shift+L)", "suggested_key": { "default": "Alt+Shift+L" } },
+    "010-focus-next-win-ccw":         { "description": "focus the next window counterclockwise (Suggest Alt+Shift+J)" },
+    "011-focus-next-win-cw":          { "description": "focus the next window clockwise (Suggest Alt+Shift+K)" },
+    "020-focus-dsp-1":                { "description": "focus display 1 (Suggest Alt+Shift+W)" },
+    "021-focus-dsp-2":                { "description": "focus display 2 (Suggest Alt+Shift+E)" },
+    "022-focus-dsp-3":                { "description": "focus display 3 (Suggest Alt+Shift+R)" },
+    "100-move-focused-win-1-win-ccw": { "description": "move the focused window one window counterclockwise (Suggest Ctrl+Shift+H)" },
+    "101-move-focused-win-1-win-cw":  { "description": "move the focused window one window clockwise (Suggest Ctrl+Shift+L)" },
+    "110-move-focused-win-1-dsp-1":   { "description": "move the focused window to display 1 (Suggest Ctrl+Shift+W)" },
+    "111-move-focused-win-1-dsp-2":   { "description": "move the focused window to display 2 (Suggest Ctrl+Shift+E)" },
+    "112-move-focused-win-1-dsp-3":   { "description": "move the focused window to display 3` (Suggest Ctrl+Shift+R)" },
+    "120-swap-focused-win-main":      { "description": "swap the focused window with the main window (Suggest Alt+Shift+Return)"},
+    "200-increase-main-wins":         { "description": "increase the number of windows in the main pane (Suggest Alt+Shift+,)"},
+    "201-decrease-main-wins":         { "description": "decrease the number of windows in the main pane (Suggest Alt+Shift+.)"},
+    "300-next-layout":                { "description": "cycle to next layout (Suggest Alt-Shift-Space)"},
+    "301-prev-layout":                { "description": "cycle to previous layout (Suggest Ctrl-Shift-Space)"},
+    "900-reevalulat-wins":            { "description": "force windows to be reevalulated (Suggest Alt+Shift+Z)"}
+  }
+}
