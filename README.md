@@ -1,5 +1,5 @@
 # chrometile
-Tiling Window Manager for ChromeOS
+Tiling Window Manager for ChromeOS™
 by Gavin Brock
 
 [Download from Chrome Webstore](https://chrome.google.com/webstore/detail/chrometile/aikaaejchodabfpkipfonnekofgepakh)
