@@ -321,8 +321,8 @@ function moveDisp(n) {
     })
 }
 
-// By default we set enabled true only for Chromebooks, but this
-// can be overridden in the settings./tileWindows
+// By default we set enabled true only for Chromebooks™, but this
+// can be overridden in the settings.tileWindows
 getSettings({"enabled": isChromeBook()}).then(settings => {
     if (settings.enabled) {
         getDisplays().then(tileWindows, reason => console.error(reason));
@@ -360,7 +360,7 @@ getSettings({"enabled": isChromeBook()}).then(settings => {
             if (commands.has(command)) commands.get(command)();
         })
     } else {
-        console.warn("ChromeTile is disabled (by default when not on a chromebook). Not running.")
+        console.warn("Tiling Window Manager for Chrome OS™ is disabled (by default when not on a Chromebook™). Not running.")
     }
 })
 
