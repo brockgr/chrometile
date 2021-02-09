@@ -308,7 +308,7 @@ function focusDisp(n) {
 function moveDisp(n) {
     return new Promise(resolve => {
         if (n < allDisplays.length) {
-            let a = allDisplays[n].area();
+            let a = allDisplays[n].area;
             getFocused().then(f => {
                 chrome.windows.update(f.win.id, {left: a.left, top: a.top}, win => {
                     this.window_ids.unshift(f.win.id); // Make it the first in the list
