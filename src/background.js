@@ -327,9 +327,9 @@ getSettings({"enabled": isChromeBook()}).then(settings => {
     if (settings.enabled) {
         getDisplays().then(tileWindows, reason => console.error(reason));
     
-        chrome.system.display.onDisplayChanged.addListener(() => {
+        chrome.system.display.onDisplayChanged.addListener(debounce(() => {
             getDisplays().then(tileWindows, reason => console.error(reason));
-        })
+        }, 250));
     
         chrome.windows.onCreated.addListener(tileWindows);
         chrome.windows.onRemoved.addListener(tileWindows);
