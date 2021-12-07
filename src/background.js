@@ -1,55 +1,66 @@
+// For readability
+const Rotation = {
+    CW:  1,
+    CCW: -1
+}
+const Change = {
+    INCREASE: 1,
+    DECREASE: -1
+}
+
+
 const WINTYPES = {"windowTypes": Object.values(chrome.windows.WindowType)};
 const LAYOUTS = new Map([
-    [ 'Tall', (wIndex,wCount,mwCount,area,margin,splitPct) => {
-        let l_width = mwCount < wCount ? Math.round((area.width+margin) * splitPct) : area.width-margin;
-        let r_width = Math.round((area.width+margin) * (1-splitPct));
-        let l_height = Math.round((area.height-margin) / (mwCount));
-        let r_height = Math.round((area.height-margin) / (wCount-mwCount));
+    ["Tall", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
+        let l_width  = mWindowCount < windowCount ? Math.round((area.width+margin) * splitPct) : area.width-margin;
+        let r_width  = Math.round((area.width+margin) * (1-splitPct));
+        let l_height = Math.round((area.height-margin) / (mWindowCount));
+        let r_height = Math.round((area.height-margin) / (windowCount-mWindowCount));
 
-        if (wIndex < mwCount) {
+        if (windowIndex < mWindowCount) {
             return {
+                "top":    area.top + margin + (l_height * windowIndex),
                 "left":   area.left + margin,
-                "top":    area.top + margin + (l_height * wIndex),
                 "width":  l_width - 2*margin,
                 "height": l_height - margin
             }
         } else {
             return {
+                "top":    area.top + margin + (r_height * (windowIndex-mWindowCount)),
                 "left":   area.left + l_width,
-                "top":    area.top + margin + (r_height * (wIndex-mwCount)),
                 "width":  r_width - 2*margin,
                 "height": r_height - margin
             }
         }
     }],
-    [ 'Wide', (wIndex,wCount,mwCount,area,margin,splitPct) => {
-        let t_height = mwCount < wCount ? Math.round((area.height+margin) * splitPct) : area.height-margin;
+    ["Wide", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
+        let t_height = mWindowCount < windowCount ? Math.round((area.height+margin) * splitPct) : area.height-margin;
         let b_height = Math.round((area.height+margin) * (1-splitPct));
-        let t_width = Math.round((area.width-margin) / (mwCount));
-        let b_width = Math.round((area.width-margin) / (wCount-mwCount));
+        let t_width  = Math.round((area.width-margin) / (mWindowCount));
+        let b_width  = Math.round((area.width-margin) / (windowCount-mWindowCount));
 
-        if (wIndex < mwCount) {
+        if (windowIndex < mWindowCount) {
             return {
                 "top":    area.top + margin,
-                "left":   area.left + margin + (t_width * wIndex),
+                "left":   area.left + margin + (t_width * windowIndex),
                 "width":  t_width - margin,
                 "height": t_height - 2*margin
             }
         } else {
             return {
                 "top":    area.top + t_height,
-                "left":   area.left + margin + (b_width * (wIndex-mwCount)),
+                "left":   area.left + margin + (b_width * (windowIndex-mWindowCount)),
                 "width":  b_width - margin,
                 "height": b_height - 2*margin
             }
         }
     }],
-    [ 'Columns', (wIndex,wCount,mwCount,area,margin,splitPct) => {
+    ["Columns", function(windowIndex, windowCount, _, area, margin, _) {
         let height = area.height-margin;
-        let width = Math.round((area.width-margin) / wCount);
+        let width = Math.round((area.width-margin) / windowCount);
         return {
             "top":    area.top + margin,
-            "left":   area.left + margin + (width * wIndex),
+            "left":   area.left + margin + (width * windowIndex),
             "width":  width - 2*margin,
             "height": height - 2*margin
         }
@@ -105,11 +116,15 @@ class Display {
         return new Promise((resolve, reject) => {
             chrome.windows.getAll(WINTYPES, wins => {
                 let new_ids = wins.filter(
-                    w => w.state != 'minimized' && w.state != 'fullscreen'
-                ).filter(w => this.isInArea(w)).map(w => w.id);
+                    win => win.state != "minimized" && win.state != "fullscreen"
+                ).filter(win => this.isInArea(win)).map(win => win.id);
 
-                this.window_ids = this.window_ids.filter(wid => new_ids.includes(wid))
-                new_ids.forEach(wid => { if (!this.window_ids.includes(wid)) this.window_ids.push(wid) })
+                this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId))
+                new_ids.forEach(windowId => {
+                    if (!this.window_ids.includes(windowId)) {
+                        this.window_ids.push(windowId)
+                    }
+                })
 
                 resolve(this.window_ids);
             })
@@ -134,13 +149,13 @@ class Display {
             ( // bottom right
                 (win.left+win.width >= this.area.left && win.left < this.area.left+this.area.width) &&
                 (win.top+win.height >= this.area.top && win.top < this.area.top+this.area.height)
-            ) 
+            )
         )
     }
 
-    static findByWinId(wid, all) {
+    static findByWinId(windowId, all) {
         return new Promise(resolve => {
-            chrome.windows.get(wid, WINTYPES, win => {
+            chrome.windows.get(windowId, WINTYPES, win => {
                 resolve(all.find(d => d.isInArea(win)));
             })
         })
@@ -148,16 +163,16 @@ class Display {
 }
 
 function debounce(callback, wait, context = this) {
-  let timeout = null 
-  let callbackArgs = null
-  
-  const later = () => callback.apply(context, callbackArgs)
-  
-  return function() {
-    callbackArgs = arguments
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
+    let timeout = null;
+    let callbackArgs = null;
+
+    const later = () => callback.apply(context, callbackArgs)
+
+    return function() {
+        callbackArgs = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    }
 }
 
 
@@ -179,11 +194,11 @@ function getDisplays() {
     })
 }
 
-function layoutWindow(display, wids, wid, wIndex, margin) {
+function layoutWindow(display, windowIds, windowId, windowIndex, margin) {
     return new Promise(resolve => {
-        console.log("layoutWindow",display.layout, wIndex,wids.length,display.main_wins,display.area,margin,display.split_pct);
-        chrome.windows.update(wid, LAYOUTS.get(display.layout)(
-            wIndex, wids.length, display.main_wins,
+        console.log("layoutWindow", display.layout, windowIndex, windowIds.length, display.main_wins, display.area, margin, display.split_pct);
+        chrome.windows.update(windowId, LAYOUTS.get(display.layout)(
+            windowIndex, windowIds.length, display.main_wins,
             display.area, margin, display.split_pct
         ), win => resolve);
     })
@@ -192,9 +207,9 @@ function layoutWindow(display, wids, wid, wIndex, margin) {
 function tileDisplayWindows(display, margin) {
     return new Promise(resolve => {
         if (!LAYOUTS.has(display.layout)) display.layout = LAYOUTS.keys().next().value;
-        display.getWindowIds().then(wids => {
+        display.getWindowIds().then(windowIds => {
             Promise.all(
-                wids.map((wid, wIndex) => layoutWindow(display, wids, wid, wIndex, margin))
+                windowIds.map((windowId, windowIndex) => layoutWindow(display, windowIds, windowId, windowIndex, margin))
             )
         }).then(resolve)
     })
@@ -202,7 +217,7 @@ function tileDisplayWindows(display, margin) {
 
 function tileWindows() {
     return new Promise((resolve, reject) => {
-        getSettings({'margin': 2}).then(settings => {
+        getSettings({"margin": 2}).then(settings => {
             let margin = parseInt(settings.margin);
             Promise.all(
                  allDisplays.map(display => { tileDisplayWindows(display, margin) })
@@ -214,19 +229,19 @@ function tileWindows() {
 function getFocused() {
     return new Promise(resolve => {
         chrome.windows.getLastFocused(WINTYPES, win => {
-            Display.findByWinId(win.id, allDisplays).then(disp=> {
+            Display.findByWinId(win.id, allDisplays).then(disp => {
                 resolve({"win": win, "disp": disp})
             })
         })
     })
 }
 
-function changeSpilt(n) {
+function changeSplit(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
             tileWindows().then(resolve);
-            if (n > 0 && f.disp.split_pct > .1) f.disp.split_pct -= 0.05;
-            if (n < 0 && f.disp.split_pct < .9) f.disp.split_pct += 0.05;
+            if (n > 0 && f.disp.split_pct > 0.1) f.disp.split_pct -= 0.05;
+            if (n < 0 && f.disp.split_pct < 0.9) f.disp.split_pct += 0.05;
         })
     })
 }
@@ -244,47 +259,47 @@ function changeMainWins(n) {
 function focusRotate(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
-            let wids = f.disp.window_ids;
-            let i = wids.indexOf(f.win.id)
-            i = (-1==i) ? i = 0 : (i+n+wids.length) % wids.length;
-            chrome.windows.update(wids[i], {"focused": true}, win => resolve);
+            let windowIds = f.disp.window_ids;
+            let i = windowIds.indexOf(f.win.id);
+            i = (-1 == i) ? i = 0 : (i+n+windowIds.length) % windowIds.length;
+            chrome.windows.update(windowIds[i], {"focused": true}, win => resolve);
         })
     })
 }
 
-function winRotate(n) {
+function windowRotate(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
-            let wids = f.disp.window_ids;
-            let i = wids.indexOf(f.win.id)
-            let j = (-1==i) ? i = 0 : (i+n+wids.length) % wids.length;
-            wids[i] = wids[j]
-            wids[j] = f.win.id
+            let windowIds = f.disp.window_ids;
+            let i = windowIds.indexOf(f.win.id)
+            let j = (-1 == i) ? i = 0 : (i+n+windowIds.length) % windowIds.length;
+            windowIds[i] = windowIds[j];
+            windowIds[j] = f.win.id;
             tileWindows().then(resolve);
         })
     })
 }
 
-function winSwapMain(n) {
+function windowSwapMain(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
-            let wids = f.disp.window_ids;
-            let i = wids.indexOf(f.win.id)
-            if (i==-1) i = 1;
-            wids[i] = wids[0]
-            wids[0] = f.win.id
+            let windowIds = f.disp.window_ids;
+            let i = windowIds.indexOf(f.win.id)
+            if (i == -1) i = 1;
+            windowIds[i] = windowIds[0]
+            windowIds[0] = f.win.id
             tileWindows().then(resolve);
         })
     })
 }
 
-function chgLayout(n) {
+function changeLayout(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
             let keys = LAYOUTS.keys();
             for (var i of keys) {
                 if (i == f.disp.layout) {
-                    f.disp.layout = keys.next().value
+                    f.disp.layout = keys.next().value;
                     break;
                 }
             }
@@ -293,11 +308,11 @@ function chgLayout(n) {
     })
 }
 
-function focusDisp(n) {
+function focusDisplay(index) {
     return new Promise(resolve => {
-        if (n < allDisplays.length) {
-            allDisplays[n].getWindowIds().then(wids => {
-                chrome.windows.update(wids[0], {"focused": true}, win => resolve);
+        if (index < allDisplays.length) {
+            allDisplays[index].getWindowIds().then(windowIds => {
+                chrome.windows.update(windowIds[0], {"focused": true}, win => resolve);
             })
         } else {
             resolve();
@@ -305,12 +320,12 @@ function focusDisp(n) {
     })
 }
 
-function moveDisp(n) {
+function moveToDisplay(index) {
     return new Promise(resolve => {
-        if (n < allDisplays.length) {
-            let a = allDisplays[n].area;
+        if (index < allDisplays.length) {
+            let a = allDisplays[index].area;
             getFocused().then(f => {
-                chrome.windows.update(f.win.id, {left: a.left, top: a.top}, win => {
+                chrome.windows.update(f.win.id, {"left": a.left, "top": a.top}, win => {
                     this.window_ids.unshift(f.win.id); // Make it the first in the list
                     tileWindows().then(resolve);
                 })
@@ -326,36 +341,36 @@ function moveDisp(n) {
 getSettings({"enabled": isChromeBook()}).then(settings => {
     if (settings.enabled) {
         getDisplays().then(tileWindows, reason => console.error(reason));
-    
+
         chrome.system.display.onDisplayChanged.addListener(debounce(() => {
             getDisplays().then(tileWindows, reason => console.error(reason));
         }, 250));
-    
+
         chrome.windows.onCreated.addListener(tileWindows);
         chrome.windows.onRemoved.addListener(tileWindows);
         chrome.windows.onFocusChanged.addListener(tileWindows);
-    
+
         chrome.commands.onCommand.addListener(function(command) {
             console.log(command);
             const commands = new Map([
-                ['001-shrink-main-pane',            () => changeSpilt(1)     ],
-                ['002-expand-main-pane',            () => changeSpilt(-1)    ],
-                ['010-focus-next-win-ccw',          () => focusRotate(-1)    ],
-                ['011-focus-next-win-cw',           () => focusRotate(1)     ],
-                ['020-focus-dsp-1',                 () => focusDisp(0)       ],
-                ['021-focus-dsp-2',                 () => focusDisp(1)       ],
-                ['022-focus-dsp-3',                 () => focusDisp(2)       ],
-                ['100-move-focused-win-1-win-ccw',  () => winRotate(-1)      ],
-                ['101-move-focused-win-1-win-cw',   () => winRotate(1)       ],
-                ['110-move-focused-win-1-dsp-1',    () => moveDisp(0)        ],
-                ['111-move-focused-win-1-dsp-2',    () => moveDisp(1)        ],
-                ['112-move-focused-win-1-dsp-3',    () => moveDisp(2)        ],
-                ['120-swap-focused-win-main',       () => winSwapMain()      ],
-                ['200-increase-main-wins',          () => changeMainWins(1)  ],
-                ['201-decrease-main-wins',          () => changeMainWins(-1) ],
-                ['300-next-layout',                 () => chgLayout(1)       ],
-                ['301-prev-layout',                 () => chgLayout(-1)      ],
-                ['900-reevalulat-wins',             () => tileWindows()      ]
+                ["001-shrink-main-pane",            () => changeSplit(Change.INCREASE)    ],
+                ["002-expand-main-pane",            () => changeSplit(Change.DECREASE)    ],
+                ["010-focus-next-win-ccw",          () => focusRotate(Rotation.CCW)       ],
+                ["011-focus-next-win-cw",           () => focusRotate(Rotation.CW)        ],
+                ["020-focus-dsp-1",                 () => focusDisplay(0)                 ],
+                ["021-focus-dsp-2",                 () => focusDisplay(1)                 ],
+                ["022-focus-dsp-3",                 () => focusDisplay(2)                 ],
+                ["100-move-focused-win-1-win-ccw",  () => windowRotate(Rotation.CCW)      ],
+                ["101-move-focused-win-1-win-cw",   () => windowRotate(Rotation.CW)       ],
+                ["110-move-focused-win-1-dsp-1",    () => moveToDisplay(0)                ],
+                ["111-move-focused-win-1-dsp-2",    () => moveToDisplay(1)                ],
+                ["112-move-focused-win-1-dsp-3",    () => moveToDisplay(2)                ],
+                ["120-swap-focused-win-main",       () => windowSwapMain()                ],
+                ["200-increase-main-wins",          () => changeMainWins(Change.INCREASE) ],
+                ["201-decrease-main-wins",          () => changeMainWins(Change.DECREASE) ],
+                ["300-next-layout",                 () => changeLayout(1)                 ],
+                ["301-prev-layout",                 () => changeLayout(-1)                ],
+                ["900-reevaluate-wins",             () => tileWindows()                   ]
             ]);
             if (commands.has(command)) commands.get(command)();
         })
@@ -368,7 +383,7 @@ getSettings({"enabled": isChromeBook()}).then(settings => {
 chrome.runtime.onMessage.addListener(debounce(request => {
     if (request.hasOwnProperty("retile")) {
         tileWindows().catch(reason => console.error(reason))
-    }    
+    }
     if (request.hasOwnProperty("enabled")) {
         window.location.reload(false)
     }
