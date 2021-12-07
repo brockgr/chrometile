@@ -4,7 +4,7 @@
   "name": "Tiling Window Manager for Chrome OS\u2122",
   "short_name": "chrometile",
   "description": "Tiling Window Manager for Chrome OS\u2122",
-  "version": "0.7",
+  "version": "0.8",
   "icons": {"128": "icon.png"},
 
   "permissions": [
@@ -39,6 +39,8 @@
     "111-move-focused-win-1-dsp-2":   { "description": "Move the focused window to display 2 (Recommended: Ctrl+Shift+E)" },
     "112-move-focused-win-1-dsp-3":   { "description": "Move the focused window to display 3 (Recommended: Ctrl+Shift+R)" },
     "120-swap-focused-win-main":      { "description": "Swap the focused window with the main window (Recommended: Alt+Shift+Return)" },
+    "130-float-focused-win":          { "description": "Changes the window state to floating (Recommended: Alt+Shift+F)" },
+    "131-tile-focused-win":           { "description": "Changes the window state to tiled (Recommended: Alt+Shift+T)" },
     "200-increase-main-wins":         { "description": "Increase the number of windows in the main pane (Recommended: Alt+Shift+,)" },
     "201-decrease-main-wins":         { "description": "Decrease the number of windows in the main pane (Recommended: Alt+Shift+.)" },
     "300-next-layout":                { "description": "Cycle to next layout (Recommended: Alt+Shift+Space)" },

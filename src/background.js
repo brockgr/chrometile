@@ -7,6 +7,10 @@ const Change = {
     INCREASE: 1,
     DECREASE: -1
 };
+const WindowState = {
+    TILED: "tiled",
+    FLOATING: "floating"
+}
 
 
 const WINTYPES = {"windowTypes": Object.values(chrome.windows.WindowType)};
@@ -74,6 +78,7 @@ class Display {
         this.id = displayInfo.id;
         this.area = displayInfo.workArea;
         this.window_ids = new Array();
+        this.excluded_window_ids = new Array();
         this._layout = null;
         this._main_wins = null;
         this._split_pct = null;
@@ -116,7 +121,7 @@ class Display {
         return new Promise((resolve, reject) => {
             chrome.windows.getAll(WINTYPES, wins => {
                 let new_ids = wins.filter(
-                    win => win.state != "minimized" && win.state != "fullscreen"
+                    win => win.state != "minimized" && win.state != "fullscreen" && !this.excluded_window_ids.includes(win.id)
                 ).filter(win => this.isInArea(win)).map(win => win.id);
 
                 this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId));
@@ -336,6 +341,18 @@ function moveToDisplay(index) {
     });
 }
 
+function changeWindowState(state) {
+    return new Promise(resolve => {
+        getFocused().then(f => {
+            let xWindowIds = f.disp.excluded_window_ids;
+
+            if (state === WindowState.FLOATING && !xWindowIds.includes(f.win.id)) xWindowIds.push(f.win.id);
+            if (state === WindowState.TILED && xWindowIds.includes(f.win.id)) xWindowIds.splice(xWindowIds.indexOf(f.win.id, 1))
+            tileWindows().then(resolve);
+        });
+    });
+}
+
 // By default we set enabled true only for Chromebooks™, but this
 // can be overridden in the settings.tileWindows
 getSettings({"enabled": isChromebook()}).then(settings => {
@@ -366,6 +383,8 @@ getSettings({"enabled": isChromebook()}).then(settings => {
                 ["111-move-focused-win-1-dsp-2",    () => moveToDisplay(1)                ],
                 ["112-move-focused-win-1-dsp-3",    () => moveToDisplay(2)                ],
                 ["120-swap-focused-win-main",       () => windowSwapMain()                ],
+                ["130-float-focused-win",           () => changeWindowState(WindowState.FLOATING) ],
+                ["131-tile-focused-win",            () => changeWindowState(WindowState.TILED)    ],
                 ["200-increase-main-wins",          () => changeMainWins(Change.INCREASE) ],
                 ["201-decrease-main-wins",          () => changeMainWins(Change.DECREASE) ],
                 ["300-next-layout",                 () => changeLayout(Change.INCREASE)   ],
