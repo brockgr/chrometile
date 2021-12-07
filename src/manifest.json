@@ -41,8 +41,8 @@
     "120-swap-focused-win-main":      { "description": "Swap the focused window with the main window (Recommended: Alt+Shift+Return)" },
     "200-increase-main-wins":         { "description": "Increase the number of windows in the main pane (Recommended: Alt+Shift+,)" },
     "201-decrease-main-wins":         { "description": "Decrease the number of windows in the main pane (Recommended: Alt+Shift+.)" },
-    "300-next-layout":                { "description": "Cycle to next layout (Recommended: Alt-Shift-Space)" },
-    "301-prev-layout":                { "description": "Cycle to previous layout (Recommended: Ctrl-Shift-Space)" },
+    "300-next-layout":                { "description": "Cycle to next layout (Recommended: Alt+Shift+Space)" },
+    "301-prev-layout":                { "description": "Cycle to previous layout (Recommended: Ctrl+Shift+Space)" },
     "900-reevaluate-wins":            { "description": "Force windows to be reevaluated (Recommended: Alt+Shift+Z)" }
   }
 }
