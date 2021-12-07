@@ -2,11 +2,11 @@
 const Rotation = {
     CW:  1,
     CCW: -1
-}
+};
 const Change = {
     INCREASE: 1,
     DECREASE: -1
-}
+};
 
 
 const WINTYPES = {"windowTypes": Object.values(chrome.windows.WindowType)};
@@ -23,14 +23,14 @@ const LAYOUTS = new Map([
                 "left":   area.left + margin,
                 "width":  l_width - 2*margin,
                 "height": l_height - margin
-            }
+            };
         } else {
             return {
                 "top":    area.top + margin + (r_height * (windowIndex-mWindowCount)),
                 "left":   area.left + l_width,
                 "width":  r_width - 2*margin,
                 "height": r_height - margin
-            }
+            };
         }
     }],
     ["Wide", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
@@ -45,14 +45,14 @@ const LAYOUTS = new Map([
                 "left":   area.left + margin + (t_width * windowIndex),
                 "width":  t_width - margin,
                 "height": t_height - 2*margin
-            }
+            };
         } else {
             return {
                 "top":    area.top + t_height,
                 "left":   area.left + margin + (b_width * (windowIndex-mWindowCount)),
                 "width":  b_width - margin,
                 "height": b_height - 2*margin
-            }
+            };
         }
     }],
     ["Columns", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
@@ -63,9 +63,9 @@ const LAYOUTS = new Map([
             "left":   area.left + margin + (width * windowIndex),
             "width":  width - 2*margin,
             "height": height - 2*margin
-        }
+        };
     }]
-])
+]);
 
 
 let allDisplays = new Array();
@@ -94,22 +94,22 @@ class Display {
     }
 
     get layout() {
-        return this._layout
+        return this._layout;
     }
     set layout(n) {
-        chrome.storage.local.set({[`layout_${this.id}`]: this._layout = n})
+        chrome.storage.local.set({[`layout_${this.id}`]: this._layout = n});
     }
     get main_wins() {
-        return this._main_wins
+        return this._main_wins;
     }
     set main_wins(n) {
-        chrome.storage.local.set({[`main_wins_${this.id}`]: this._main_wins = n})
+        chrome.storage.local.set({[`main_wins_${this.id}`]: this._main_wins = n});
     }
     get split_pct() {
-        return this._split_pct
+        return this._split_pct;
     }
     set split_pct(n) {
-        chrome.storage.local.set({[`split_pct_${this.id}`]: this._split_pct = n})
+        chrome.storage.local.set({[`split_pct_${this.id}`]: this._split_pct = n});
     }
 
     getWindowIds() {
@@ -119,16 +119,16 @@ class Display {
                     win => win.state != "minimized" && win.state != "fullscreen"
                 ).filter(win => this.isInArea(win)).map(win => win.id);
 
-                this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId))
+                this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId));
                 new_ids.forEach(windowId => {
                     if (!this.window_ids.includes(windowId)) {
-                        this.window_ids.push(windowId)
+                        this.window_ids.push(windowId);
                     }
-                })
+                });
 
                 resolve(this.window_ids);
-            })
-        })
+            });
+        });
     }
 
     isInArea(win) {
@@ -150,15 +150,15 @@ class Display {
                 (win.left+win.width >= this.area.left && win.left < this.area.left+this.area.width) &&
                 (win.top+win.height >= this.area.top && win.top < this.area.top+this.area.height)
             )
-        )
+        );
     }
 
     static findByWinId(windowId, all) {
         return new Promise(resolve => {
             chrome.windows.get(windowId, WINTYPES, win => {
                 resolve(all.find(d => d.isInArea(win)));
-            })
-        })
+            });
+        });
     }
 }
 
@@ -166,7 +166,7 @@ function debounce(callback, wait, context = this) {
     let timeout = null;
     let callbackArgs = null;
 
-    const later = () => callback.apply(context, callbackArgs)
+    const later = () => callback.apply(context, callbackArgs);
 
     return function() {
         callbackArgs = arguments;
@@ -187,11 +187,11 @@ function getDisplays() {
         allDisplays = new Array();
         chrome.system.display.getInfo(displayInfo => {
             console.log("Display Info", displayInfo);
-            if (displayInfo.length == 0) reject("Zero displays")
+            if (displayInfo.length == 0) reject("Zero displays");
             displayInfo.forEach(d => allDisplays.push(new Display(d)));
             Promise.all(allDisplays.map(d => d.init())).then(resolve);
-        })
-    })
+        });
+    });
 }
 
 function layoutWindow(display, windowIds, windowId, windowIndex, margin) {
@@ -201,7 +201,7 @@ function layoutWindow(display, windowIds, windowId, windowIndex, margin) {
             windowIndex, windowIds.length, display.main_wins,
             display.area, margin, display.split_pct
         ), win => resolve);
-    })
+    });
 }
 
 function tileDisplayWindows(display, margin) {
@@ -210,9 +210,9 @@ function tileDisplayWindows(display, margin) {
         display.getWindowIds().then(windowIds => {
             Promise.all(
                 windowIds.map((windowId, windowIndex) => layoutWindow(display, windowIds, windowId, windowIndex, margin))
-            )
-        }).then(resolve)
-    })
+            );
+        }).then(resolve);
+    });
 }
 
 function tileWindows() {
@@ -221,9 +221,9 @@ function tileWindows() {
             let margin = parseInt(settings.margin);
             Promise.all(
                  allDisplays.map(display => { tileDisplayWindows(display, margin) })
-            ).then(resolve)
-        })
-    })
+            ).then(resolve);
+        });
+    });
 }
 
 function getFocused() {
@@ -231,9 +231,9 @@ function getFocused() {
         chrome.windows.getLastFocused(WINTYPES, win => {
             Display.findByWinId(win.id, allDisplays).then(disp => {
                 resolve({"win": win, "disp": disp})
-            })
-        })
-    })
+            });
+        });
+    });
 }
 
 function changeSplit(n) {
@@ -242,8 +242,8 @@ function changeSplit(n) {
             tileWindows().then(resolve);
             if (n > 0 && f.disp.split_pct > 0.1) f.disp.split_pct -= 0.05;
             if (n < 0 && f.disp.split_pct < 0.9) f.disp.split_pct += 0.05;
-        })
-    })
+        });
+    });
 }
 
 function changeMainWins(n) {
@@ -252,8 +252,8 @@ function changeMainWins(n) {
             if (n > 0 && f.disp.main_wins < f.disp.window_ids.length) f.disp.main_wins++;
             if (n < 0 && f.disp.main_wins > 1) f.disp.main_wins--;
             tileWindows().then(resolve);
-        })
-    })
+        });
+    });
 }
 
 function focusRotate(n) {
@@ -263,8 +263,8 @@ function focusRotate(n) {
             let i = windowIds.indexOf(f.win.id);
             i = (-1 == i) ? i = 0 : (i+n+windowIds.length) % windowIds.length;
             chrome.windows.update(windowIds[i], {"focused": true}, win => resolve);
-        })
-    })
+        });
+    });
 }
 
 function windowRotate(n) {
@@ -276,8 +276,8 @@ function windowRotate(n) {
             windowIds[i] = windowIds[j];
             windowIds[j] = f.win.id;
             tileWindows().then(resolve);
-        })
-    })
+        });
+    });
 }
 
 function windowSwapMain(n) {
@@ -289,8 +289,8 @@ function windowSwapMain(n) {
             windowIds[i] = windowIds[0]
             windowIds[0] = f.win.id
             tileWindows().then(resolve);
-        })
-    })
+        });
+    });
 }
 
 function changeLayout(n) {
@@ -304,8 +304,8 @@ function changeLayout(n) {
                 }
             }
             tileWindows().then(resolve);
-        })
-    })
+        });
+    });
 }
 
 function focusDisplay(index) {
@@ -317,7 +317,7 @@ function focusDisplay(index) {
         } else {
             resolve();
         }
-    })
+    });
 }
 
 function moveToDisplay(index) {
@@ -333,12 +333,12 @@ function moveToDisplay(index) {
         } else {
             resolve();
         }
-    })
+    });
 }
 
-// By default we set enabled true only for Chromebooks\u2122, but this
+// By default we set enabled true only for Chromebooks™, but this
 // can be overridden in the settings.tileWindows
-getSettings({"enabled": isChromeBook()}).then(settings => {
+getSettings({"enabled": isChromebook()}).then(settings => {
     if (settings.enabled) {
         getDisplays().then(tileWindows, reason => console.error(reason));
 
@@ -368,8 +368,8 @@ getSettings({"enabled": isChromeBook()}).then(settings => {
                 ["120-swap-focused-win-main",       () => windowSwapMain()                ],
                 ["200-increase-main-wins",          () => changeMainWins(Change.INCREASE) ],
                 ["201-decrease-main-wins",          () => changeMainWins(Change.DECREASE) ],
-                ["300-next-layout",                 () => changeLayout(1)                 ],
-                ["301-prev-layout",                 () => changeLayout(-1)                ],
+                ["300-next-layout",                 () => changeLayout(Change.INCREASE)   ],
+                ["301-prev-layout",                 () => changeLayout(Change.DECREASE)   ],
                 ["900-reevaluate-wins",             () => tileWindows()                   ]
             ]);
             if (commands.has(command)) commands.get(command)();
@@ -382,9 +382,9 @@ getSettings({"enabled": isChromeBook()}).then(settings => {
 // Events sent by options page
 chrome.runtime.onMessage.addListener(debounce(request => {
     if (request.hasOwnProperty("retile")) {
-        tileWindows().catch(reason => console.error(reason))
+        tileWindows().catch(reason => console.error(reason));
     }
     if (request.hasOwnProperty("enabled")) {
-        window.location.reload(false)
+        window.location.reload(false);
     }
 }, 250));

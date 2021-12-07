@@ -67,7 +67,7 @@ function loadSetupOptions() {
 
 hideElement("options");
 
-let isCrOS = isChromeBook();
+let isCrOS = isChromebook();
 
 isCrOS ? hideElement("warning") : showElement("warning");
 
