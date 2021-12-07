@@ -55,7 +55,7 @@ const LAYOUTS = new Map([
             }
         }
     }],
-    ["Columns", function(windowIndex, windowCount, _, area, margin, _) {
+    ["Columns", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
         let height = area.height-margin;
         let width = Math.round((area.width-margin) / windowCount);
         return {
