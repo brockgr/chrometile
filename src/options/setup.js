@@ -1,16 +1,16 @@
-function hide(id) {
+function hideElement(id) {
     let $el = document.getElementById(id);
     if (!$el) console.error(`Can't find ${id}`);
     $el.style.display = "none";
 }
 
-function show(id) {
+function showElement(id) {
     let $el = document.getElementById(id);
     if (!$el) console.error(`Can't find ${id}`);
     $el.style.display = "block";
 }
 
-function setUpEnabled(def) {
+function isSetupEnabled(def) {
     let $enabled = document.getElementById("enabled")
     console.log($enabled);
     return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ function setUpEnabled(def) {
     });
 }
 
-function setUpOptions() {
+function loadSetupOptions() {
     let $margin = document.getElementById("margin");
     chrome.storage.local.get({"margin": 2}, settings => {
         $margin.value = settings.margin;
@@ -40,15 +40,21 @@ function setUpOptions() {
     chrome.commands.getAll(function(commands) {
         commands.forEach(command => {
             let $row = document.createElement("tr");
-    
+            
             let $scut = document.createElement("td");
-            $scut.innerText = command.shortcut || "<none>";
-            $row.appendChild($scut);
-    
+            let commandString = command.shortcut ? command.shortcut.replaceAll(/([^+]+)/g, "<kbd>$&</kbd>").replaceAll("+", "") : null;
+            $scut.innerHTML = commandString || "&lt;none&gt;";
+
             let $desc = document.createElement("td");
-            $desc.innerText = command.description;
+            $desc.innerText = command.description.replace(/ \(Recommended.+/, "");
+            
+            let $recom = document.createElement("td");
+            $recom.innerHTML = command.description.replace(/.+?Recommended: (.+?)\)/, "$1").replaceAll(/([^+]+)/g, "<kbd>$&</kbd>").replaceAll("+", "");
+
+            $row.appendChild($scut);
             $row.appendChild($desc);
-    
+            $row.appendChild($recom);
+
             $tbody.appendChild($row);
         });
         console.log(commands);
@@ -59,15 +65,15 @@ function setUpOptions() {
     }));
 }
 
-hide("options");
+hideElement("options");
 
 let isCrOS = isChromeBook();
 
-isCrOS ? hide("warning") : show("warning");
+isCrOS ? hideElement("warning") : showElement("warning");
 
-setUpEnabled(isCrOS).then(enabled => {
+isSetupEnabled(isCrOS).then(enabled => {
     if (enabled) {
-        setUpOptions();
-        show("options");
+        loadSetupOptions();
+        showElement("options");
     }
 });

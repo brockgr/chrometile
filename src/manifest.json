@@ -14,7 +14,7 @@
   ],
 
   "options_ui": {
-    "page": "options.html"
+    "page": "options/options.html"
   },
 
   "background" : {
@@ -37,7 +37,7 @@
     "101-move-focused-win-1-win-cw":  { "description": "Move the focused window one window clockwise (Recommended: Ctrl+Shift+L)" },
     "110-move-focused-win-1-dsp-1":   { "description": "Move the focused window to display 1 (Recommended: Ctrl+Shift+W)" },
     "111-move-focused-win-1-dsp-2":   { "description": "Move the focused window to display 2 (Recommended: Ctrl+Shift+E)" },
-    "112-move-focused-win-1-dsp-3":   { "description": "Move the focused window to display 3` (Recommended: Ctrl+Shift+R)" },
+    "112-move-focused-win-1-dsp-3":   { "description": "Move the focused window to display 3 (Recommended: Ctrl+Shift+R)" },
     "120-swap-focused-win-main":      { "description": "Swap the focused window with the main window (Recommended: Alt+Shift+Return)" },
     "200-increase-main-wins":         { "description": "Increase the number of windows in the main pane (Recommended: Alt+Shift+,)" },
     "201-decrease-main-wins":         { "description": "Decrease the number of windows in the main pane (Recommended: Alt+Shift+.)" },
