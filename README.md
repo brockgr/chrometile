@@ -1,5 +1,5 @@
 # ChromeTile
-> A Tiling Window Manager for ChromeOS™
+> Tiling Window Manager for ChromeOS™
 
 Developed by Gavin Brock and [contributors](https://github.com/brockgr/chrometile/graphs/contributors).
 
