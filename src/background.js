@@ -321,7 +321,7 @@ function moveDisp(n) {
     })
 }
 
-// By default we set enabled true only for Chromebooks™, but this
+// By default we set enabled true only for Chromebooks\u2122, but this
 // can be overridden in the settings.tileWindows
 getSettings({"enabled": isChromeBook()}).then(settings => {
     if (settings.enabled) {
@@ -338,29 +338,29 @@ getSettings({"enabled": isChromeBook()}).then(settings => {
         chrome.commands.onCommand.addListener(function(command) {
             console.log(command);
             const commands = new Map([
-                ['001-shrink-main-pane',            ()=> changeSpilt(1) ],
-                ['002-expand-main-pane',            ()=> changeSpilt(-1)  ],
-                ['010-focus-next-win-ccw',          ()=> focusRotate(-1) ],
-                ['011-focus-next-win-cw',           ()=> focusRotate(1)  ],
-                ['020-focus-dsp-1',                 ()=> focusDisp(0)  ],
-                ['021-focus-dsp-2',                 ()=> focusDisp(1)  ],
-                ['022-focus-dsp-3',                 ()=> focusDisp(2)  ],
-                ['100-move-focused-win-1-win-ccw',  ()=> winRotate(-1) ],
-                ['101-move-focused-win-1-win-cw',   ()=> winRotate(1) ],
-                ['110-move-focused-win-1-dsp-1',    ()=> moveDisp(0) ],
-                ['111-move-focused-win-1-dsp-2',    ()=> moveDisp(1) ],
-                ['112-move-focused-win-1-dsp-3',    ()=> moveDisp(2) ],
-                ['120-swap-focused-win-main',       ()=> winSwapMain() ],
-                ['200-increase-main-wins',          ()=> changeMainWins(1) ],
-                ['201-decrease-main-wins',          ()=> changeMainWins(-1) ],
-                ['300-next-layout',                 ()=> chgLayout(1) ],
-                ['301-prev-layout',                 ()=> chgLayout(-1) ],
-                ['900-reevalulat-wins',             ()=> tileWindows() ]
+                ['001-shrink-main-pane',            () => changeSpilt(1)     ],
+                ['002-expand-main-pane',            () => changeSpilt(-1)    ],
+                ['010-focus-next-win-ccw',          () => focusRotate(-1)    ],
+                ['011-focus-next-win-cw',           () => focusRotate(1)     ],
+                ['020-focus-dsp-1',                 () => focusDisp(0)       ],
+                ['021-focus-dsp-2',                 () => focusDisp(1)       ],
+                ['022-focus-dsp-3',                 () => focusDisp(2)       ],
+                ['100-move-focused-win-1-win-ccw',  () => winRotate(-1)      ],
+                ['101-move-focused-win-1-win-cw',   () => winRotate(1)       ],
+                ['110-move-focused-win-1-dsp-1',    () => moveDisp(0)        ],
+                ['111-move-focused-win-1-dsp-2',    () => moveDisp(1)        ],
+                ['112-move-focused-win-1-dsp-3',    () => moveDisp(2)        ],
+                ['120-swap-focused-win-main',       () => winSwapMain()      ],
+                ['200-increase-main-wins',          () => changeMainWins(1)  ],
+                ['201-decrease-main-wins',          () => changeMainWins(-1) ],
+                ['300-next-layout',                 () => chgLayout(1)       ],
+                ['301-prev-layout',                 () => chgLayout(-1)      ],
+                ['900-reevalulat-wins',             () => tileWindows()      ]
             ]);
             if (commands.has(command)) commands.get(command)();
         })
     } else {
-        console.warn("Tiling Window Manager for Chrome OS™ is disabled (by default when not on a Chromebook™). Not running.")
+        console.warn("Tiling Window Manager for Chrome OS\u2122 is disabled (by default when not on a Chromebook\u2122). Not running.")
     }
 })
 
@@ -373,4 +373,3 @@ chrome.runtime.onMessage.addListener(debounce(request => {
         window.location.reload(false)
     }
 }, 250));
-
