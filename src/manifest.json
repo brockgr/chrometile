@@ -19,7 +19,7 @@
 
   "background" : {
     "scripts": [
-        "is_chrome_book.js",
+        "is_chromebook.js",
         "background.js"
     ],
     "persistent": true
