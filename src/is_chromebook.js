@@ -1,4 +1,7 @@
 function isChromebook() {
-    // Hacky, but what StackOverflow suggests
-    return window.navigator.userAgent.search('CrOS') > -1;
+    return new Promise(resolve => {
+        chrome.runtime.getPlatformInfo(info => {
+            resolve(info.os === "cros");
+        });
+    });
 }
