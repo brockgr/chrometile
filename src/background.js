@@ -1,4 +1,3 @@
-// For readability
 const Rotation = {
     CW:  1,
     CCW: -1
@@ -10,7 +9,7 @@ const Change = {
 const WindowState = {
     TILED: "tiled",
     FLOATING: "floating"
-}
+};
 
 
 const WINTYPES = {"windowTypes": Object.values(chrome.windows.WindowType)};
@@ -68,7 +67,7 @@ const LAYOUTS = new Map([
             "width":  width - 2*margin,
             "height": height - 2*margin
         };
-    }]
+    }],
 ]);
 
 
@@ -94,8 +93,8 @@ class Display {
                 this._layout = settings[`layout_${this.id}`];
                 this._main_wins = settings[`main_wins_${this.id}`];
                 this._split_pct = settings[`split_pct_${this.id}`];
-            })
-        })
+            });
+        });
     }
 
     get layout() {
@@ -184,7 +183,7 @@ function debounce(callback, wait, context = this) {
 function getSettings(keys) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(keys, resolve);
-    })
+    });
 }
 
 function getDisplays() {
@@ -245,8 +244,8 @@ function changeSplit(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
             tileWindows().then(resolve);
-            if (n > 0 && f.disp.split_pct > 0.1) f.disp.split_pct -= 0.05;
-            if (n < 0 && f.disp.split_pct < 0.9) f.disp.split_pct += 0.05;
+            if (n === Change.INCREASE && f.disp.split_pct > 0.1) f.disp.split_pct -= 0.05;
+            if (n === Change.DECREASE && f.disp.split_pct < 0.9) f.disp.split_pct += 0.05;
         });
     });
 }
@@ -254,8 +253,8 @@ function changeSplit(n) {
 function changeMainWins(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
-            if (n > 0 && f.disp.main_wins < f.disp.window_ids.length) f.disp.main_wins++;
-            if (n < 0 && f.disp.main_wins > 1) f.disp.main_wins--;
+            if (n === Change.INCREASE && f.disp.main_wins < f.disp.window_ids.length) f.disp.main_wins++;
+            if (n === Change.DECREASE && f.disp.main_wins > 1) f.disp.main_wins--;
             tileWindows().then(resolve);
         });
     });
@@ -289,10 +288,10 @@ function windowSwapMain(n) {
     return new Promise(resolve => {
         getFocused().then(f => {
             let windowIds = f.disp.window_ids;
-            let i = windowIds.indexOf(f.win.id)
+            let i = windowIds.indexOf(f.win.id);
             if (i == -1) i = 1;
-            windowIds[i] = windowIds[0]
-            windowIds[0] = f.win.id
+            windowIds[i] = windowIds[0];
+            windowIds[0] = f.win.id;
             tileWindows().then(resolve);
         });
     });
@@ -347,7 +346,7 @@ function changeWindowState(state) {
             let xWindowIds = f.disp.excluded_window_ids;
 
             if (state === WindowState.FLOATING && !xWindowIds.includes(f.win.id)) xWindowIds.push(f.win.id);
-            if (state === WindowState.TILED && xWindowIds.includes(f.win.id)) xWindowIds.splice(xWindowIds.indexOf(f.win.id, 1))
+            if (state === WindowState.TILED && xWindowIds.includes(f.win.id)) xWindowIds.splice(xWindowIds.indexOf(f.win.id, 1));
             tileWindows().then(resolve);
         });
     });
@@ -394,7 +393,7 @@ getSettings({"enabled": isChromebook()}).then(settings => {
             if (commands.has(command)) commands.get(command)();
         })
     } else {
-        console.warn("Tiling Window Manager for Chrome OS\u2122 is disabled (by default when not on a Chromebook\u2122). Not running.")
+        console.warn("Tiling Window Manager for Chrome OS\u2122 is disabled (by default when not on a Chromebook\u2122). Not running.");
     }
 })
 
