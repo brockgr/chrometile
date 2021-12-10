@@ -120,7 +120,7 @@ class Display {
         return new Promise((resolve, reject) => {
             chrome.windows.getAll(WINTYPES, wins => {
                 let new_ids = wins.filter(
-                    win => win.state != "minimized" && win.state != "fullscreen" && !this.excluded_window_ids.includes(win.id)
+                    win => win.state == "normal" && !this.excluded_window_ids.includes(win.id)
                 ).filter(win => this.isInArea(win)).map(win => win.id);
 
                 this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId));
