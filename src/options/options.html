@@ -1,21 +1,24 @@
 <html>
     <head>
-        <title>Tiling Window Manager for Chrome OS™ Options</title>
+        <title>ChromeTile Options</title>
+        <link rel="stylesheet" href="style.css">
     </head>
     <body>
         <div id="warning">
-            <h1>This does not seem to be a Chromebook™</h1>
-            Tiling Window Manager for Chrome OS™ is probably not what you want
+            <h1>This does not seem to be a Chromebook&trade;</h1>
+            Tiling Window Manager for Chrome OS&trade; is probably not what you want
             on this browser. It has been disabled by default.
         </div>
 
-        <h1>Enable Tiling Window Manager for Chrome OS™</h1>
+        <h1>Enable Tiling Window Manager for Chrome OS&trade;</h1>
         <input type="checkbox" id="enabled">
-            Enable Tiling Window Manager for Chrome OS™
+            Enable Tiling Window Manager for Chrome OS&trade;
         </input>
+
+        <hr>
         
         <div id="options">
-            <h1>Tiling Window Manager for Chrome OS™ Options</h1>
+            <h1>Options</h1>
 
             <h2>Appearance</h2>
             Margin <input type="number" id="margin" size=2><br>
@@ -28,15 +31,19 @@
                     <tr>
                         <th>Key Binding</th>
                         <th>Description</th>
+                        <th>Recommended</th>
                     </th>
                 </tbody>
             </table>
         </div>
+
+        <hr>
+        
         <p><i>
           Chrome OS and Chromebook are trademarks of Google Inc.
           Use of these trademarks are subject to Google Permissions.
         </i></p>
     </body>
-    <script src="is_chrome_book.js"></script>
-    <script src="options.js"></script>
+    <script src="../is_chromebook.js"></script>
+    <script src="setup.js"></script>
 </html>
