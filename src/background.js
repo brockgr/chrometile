@@ -1,3 +1,11 @@
+function isChromebook() {
+    return new Promise(resolve => {
+        chrome.runtime.getPlatformInfo(info => {
+            resolve(info.os === "cros");
+        });
+    });
+}
+
 const Rotation = {
     CW:  1,
     CCW: -1

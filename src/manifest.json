@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "Tiling Window Manager for Chrome OS\u2122",
   "short_name": "chrometile",
@@ -8,7 +8,6 @@
   "icons": {"128": "icon.png"},
 
   "permissions": [
-    "tabs",
     "storage",
     "system.display"
   ],
@@ -18,11 +17,7 @@
   },
 
   "background" : {
-    "scripts": [
-        "is_chromebook.js",
-        "background.js"
-    ],
-    "persistent": true
+    "service_worker": "background.js"
   },
 
   "commands": {
