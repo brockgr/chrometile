@@ -360,47 +360,49 @@ function changeWindowState(state) {
 
 // By default we set enabled true only for Chromebooks™, but this
 // can be overridden in the settings.tileWindows
-getSettings({"enabled": isChromebook()}).then(settings => {
-    if (settings.enabled) {
-        getDisplays().then(tileWindows, reason => console.error(reason));
-
-        chrome.system.display.onDisplayChanged.addListener(debounce(() => {
+isChromebook().then(isCrOs => {
+    getSettings({"enabled": isCrOs}).then(settings => {
+        if (settings.enabled) {
             getDisplays().then(tileWindows, reason => console.error(reason));
-        }, 250));
 
-        chrome.windows.onCreated.addListener(tileWindows);
-        chrome.windows.onRemoved.addListener(tileWindows);
-        chrome.windows.onFocusChanged.addListener(tileWindows);
+            chrome.system.display.onDisplayChanged.addListener(debounce(() => {
+                getDisplays().then(tileWindows, reason => console.error(reason));
+            }, 250));
 
-        chrome.commands.onCommand.addListener(function(command) {
-            console.log(command);
-            const commands = new Map([
-                ["001-shrink-main-pane",            () => changeSplit(Change.INCREASE)    ],
-                ["002-expand-main-pane",            () => changeSplit(Change.DECREASE)    ],
-                ["010-focus-next-win-ccw",          () => focusRotate(Rotation.CCW)       ],
-                ["011-focus-next-win-cw",           () => focusRotate(Rotation.CW)        ],
-                ["020-focus-dsp-1",                 () => focusDisplay(0)                 ],
-                ["021-focus-dsp-2",                 () => focusDisplay(1)                 ],
-                ["022-focus-dsp-3",                 () => focusDisplay(2)                 ],
-                ["100-move-focused-win-1-win-ccw",  () => windowRotate(Rotation.CCW)      ],
-                ["101-move-focused-win-1-win-cw",   () => windowRotate(Rotation.CW)       ],
-                ["110-move-focused-win-1-dsp-1",    () => moveToDisplay(0)                ],
-                ["111-move-focused-win-1-dsp-2",    () => moveToDisplay(1)                ],
-                ["112-move-focused-win-1-dsp-3",    () => moveToDisplay(2)                ],
-                ["120-swap-focused-win-main",       () => windowSwapMain()                ],
-                ["130-float-focused-win",           () => changeWindowState(WindowState.FLOATING) ],
-                ["131-tile-focused-win",            () => changeWindowState(WindowState.TILED)    ],
-                ["200-increase-main-wins",          () => changeMainWins(Change.INCREASE) ],
-                ["201-decrease-main-wins",          () => changeMainWins(Change.DECREASE) ],
-                ["300-next-layout",                 () => changeLayout(Change.INCREASE)   ],
-                ["301-prev-layout",                 () => changeLayout(Change.DECREASE)   ],
-                ["900-reevaluate-wins",             () => tileWindows()                   ]
-            ]);
-            if (commands.has(command)) commands.get(command)();
-        })
-    } else {
-        console.warn("Tiling Window Manager for Chrome OS\u2122 is disabled (by default when not on a Chromebook\u2122). Not running.");
-    }
+            chrome.windows.onCreated.addListener(tileWindows);
+            chrome.windows.onRemoved.addListener(tileWindows);
+            chrome.windows.onFocusChanged.addListener(tileWindows);
+
+            chrome.commands.onCommand.addListener(function(command) {
+                console.log(command);
+                const commands = new Map([
+                    ["001-shrink-main-pane",            () => changeSplit(Change.INCREASE)    ],
+                    ["002-expand-main-pane",            () => changeSplit(Change.DECREASE)    ],
+                    ["010-focus-next-win-ccw",          () => focusRotate(Rotation.CCW)       ],
+                    ["011-focus-next-win-cw",           () => focusRotate(Rotation.CW)        ],
+                    ["020-focus-dsp-1",                 () => focusDisplay(0)                 ],
+                    ["021-focus-dsp-2",                 () => focusDisplay(1)                 ],
+                    ["022-focus-dsp-3",                 () => focusDisplay(2)                 ],
+                    ["100-move-focused-win-1-win-ccw",  () => windowRotate(Rotation.CCW)      ],
+                    ["101-move-focused-win-1-win-cw",   () => windowRotate(Rotation.CW)       ],
+                    ["110-move-focused-win-1-dsp-1",    () => moveToDisplay(0)                ],
+                    ["111-move-focused-win-1-dsp-2",    () => moveToDisplay(1)                ],
+                    ["112-move-focused-win-1-dsp-3",    () => moveToDisplay(2)                ],
+                    ["120-swap-focused-win-main",       () => windowSwapMain()                ],
+                    ["130-float-focused-win",           () => changeWindowState(WindowState.FLOATING) ],
+                    ["131-tile-focused-win",            () => changeWindowState(WindowState.TILED)    ],
+                    ["200-increase-main-wins",          () => changeMainWins(Change.INCREASE) ],
+                    ["201-decrease-main-wins",          () => changeMainWins(Change.DECREASE) ],
+                    ["300-next-layout",                 () => changeLayout(Change.INCREASE)   ],
+                    ["301-prev-layout",                 () => changeLayout(Change.DECREASE)   ],
+                    ["900-reevaluate-wins",             () => tileWindows()                   ]
+                ]);
+                if (commands.has(command)) commands.get(command)();
+            })
+        } else {
+            console.warn("Tiling Window Manager for Chrome OS\u2122 is disabled (by default when not on a Chromebook\u2122). Not running.");
+        }
+    })
 })
 
 // Events sent by options page
@@ -409,6 +411,6 @@ chrome.runtime.onMessage.addListener(debounce(request => {
         tileWindows().catch(reason => console.error(reason));
     }
     if (request.hasOwnProperty("enabled")) {
-        window.location.reload(false);
+        chrome.runtime.reload()
     }
 }, 250));

@@ -67,13 +67,13 @@ function loadSetupOptions() {
 
 hideElement("options");
 
-let isCrOS = isChromebook();
+isChromebook().then(isCrOS => {
+    isCrOS ? hideElement("warning") : showElement("warning");
 
-isCrOS ? hideElement("warning") : showElement("warning");
-
-isSetupEnabled(isCrOS).then(enabled => {
-    if (enabled) {
-        loadSetupOptions();
-        showElement("options");
-    }
+    isSetupEnabled(isCrOS).then(enabled => {
+        if (enabled) {
+            loadSetupOptions();
+            showElement("options");
+        }
+    })
 });
