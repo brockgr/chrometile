@@ -18,7 +18,7 @@ const WindowState = {
 };
 
 
-const WINTYPES = {"windowTypes": Object.values(chrome.windows.WindowType)};
+const WINTYPES = {"populate":  true, "windowTypes": Object.values(chrome.windows.WindowType)};
 const LAYOUTS = new Map([
     ["Tall", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
         let l_width  = mWindowCount < windowCount ? Math.round((area.width+margin) * splitPct) : area.width-margin;
@@ -127,7 +127,7 @@ class Display {
             chrome.windows.getAll(WINTYPES, wins => {
                 let new_ids = wins.filter(
                     win => win.state == "normal" && !this.excluded_window_ids.includes(win.id)
-                ).filter(win => this.isInArea(win)).map(win => win.id);
+                ).filter(win => this.isInArea(win) && !this.hasSingleTabWithUrl(win, 'about:blank')).map(win => win.id);
 
                 this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId));
                 new_ids.forEach(windowId => {
@@ -161,6 +161,11 @@ class Display {
                 (win.top+win.height >= this.area.top && win.top < this.area.top+this.area.height)
             )
         );
+    }
+
+    hasSingleTabWithUrl(win, url) {
+        // Returns whether the window contains a single whose URL matches that specified.
+        return (win.tabs.length === 1) && (win.tabs[0].url === url);
     }
 
     static findByWinId(windowId, all) {
