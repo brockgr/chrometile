@@ -17,6 +17,10 @@ const WindowState = {
     FLOATING: "floating"
 };
 
+const SingleTabIgnoreList = {
+    BLANK: "about:blank",
+    CHROME_REMOTE_DESKTOP: "https://remotedesktop.google.com/"
+}
 
 const WINTYPES = {"populate":  true, "windowTypes": Object.values(chrome.windows.WindowType)};
 const LAYOUTS = new Map([
@@ -127,7 +131,7 @@ class Display {
             chrome.windows.getAll(WINTYPES, wins => {
                 let new_ids = wins.filter(
                     win => win.state == "normal" && !this.excluded_window_ids.includes(win.id)
-                ).filter(win => this.isInArea(win) && !this.hasSingleTabWithUrl(win, 'about:blank')).map(win => win.id);
+                ).filter(win => this.isInArea(win) && !this.isInSingleTabIgnoreList(win)).map(win => win.id);
 
                 this.window_ids = this.window_ids.filter(windowId => new_ids.includes(windowId));
                 new_ids.forEach(windowId => {
@@ -163,9 +167,11 @@ class Display {
         );
     }
 
-    hasSingleTabWithUrl(win, url) {
-        // Returns whether the window contains a single whose URL matches that specified.
-        return (win.tabs.length === 1) && (win.tabs[0].url === url);
+    isInSingleTabIgnoreList(win) {
+        if (win && win.tabs && win.tabs.length === 1) {
+            return Object.values(SingleTabIgnoreList).some(ignoredUrl => win.tabs[0].url.startsWith(ignoredUrl));
+        }
+        return false;
     }
 
     static findByWinId(windowId, all) {
