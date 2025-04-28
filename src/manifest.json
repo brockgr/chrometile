@@ -9,7 +9,8 @@
 
   "permissions": [
     "storage",
-    "system.display"
+    "system.display",
+    "tabs"
   ],
 
   "options_ui": {
