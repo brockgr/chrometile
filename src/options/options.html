@@ -21,7 +21,13 @@
             <h1>Options</h1>
 
             <h2>Appearance</h2>
-            Margin <input type="number" id="margin" size=2><br>
+            <label for="margin">Margin</label> <input type="number" id="margin" size=2><br>
+
+            <h2>Ignored sites</h2>
+            Browser windows consisting of a single tab which contains any of the following URLs will be ignored.
+            <br>
+            <br>
+            <textarea spellcheck="false" rows=4 cols=40 type="text" id="denylist"></textarea><br>
 
             <h2>Hotkeys</h2>
             To change the hotkey bindings visit the
@@ -45,5 +51,6 @@
         </i></p>
     </body>
     <script src="../is_chromebook.js"></script>
+    <script src="deny_list.js"></script>
     <script src="setup.js"></script>
 </html>

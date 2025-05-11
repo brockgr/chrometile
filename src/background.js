@@ -1,5 +1,5 @@
 try {
-    importScripts("./is_chromebook.js");
+    importScripts("./is_chromebook.js", "./options/deny_list.js");
 } catch (e) {
     console.log(e);
 }
@@ -16,11 +16,6 @@ const WindowState = {
     TILED: "tiled",
     FLOATING: "floating"
 };
-
-const SingleTabIgnoreList = {
-    BLANK: "about:blank",
-    CHROME_REMOTE_DESKTOP: "https://remotedesktop.google.com/"
-}
 
 const WINTYPES = {"populate":  true, "windowTypes": Object.values(chrome.windows.WindowType)};
 const LAYOUTS = new Map([
@@ -80,6 +75,14 @@ const LAYOUTS = new Map([
     }],
 ]);
 
+async function loadDenyList() {
+    await getSettings({ [`denylist`]: DenyList.defaults() }).then(settings => {
+        DENY_LIST.splice(0, DENY_LIST.length, ...DenyList.parse(settings['denylist']));
+    })
+}
+
+const DENY_LIST = [];
+loadDenyList();
 
 let allDisplays = new Array();
 class Display {
@@ -91,13 +94,14 @@ class Display {
         this._layout = null;
         this._main_wins = null;
         this._split_pct = null;
+        this._deny_list = [];
     }
     init() {
         return new Promise(resolve => {
             getSettings({
                 [`layout_${this.id}`]: null,
                 [`main_wins_${this.id}`]: 1,
-                [`split_pct_${this.id}`]: 0.5
+                [`split_pct_${this.id}`]: 0.5,
             }).then(settings => {
                 console.log("Loaded Settings", settings);
                 this._layout = settings[`layout_${this.id}`];
@@ -169,7 +173,7 @@ class Display {
 
     isInSingleTabIgnoreList(win) {
         if (win && win.tabs && win.tabs.length === 1) {
-            return Object.values(SingleTabIgnoreList).some(ignoredUrl => win.tabs[0].url.startsWith(ignoredUrl));
+            return DENY_LIST.some(ignoredUrl => win.tabs[0].url.startsWith(ignoredUrl));
         }
         return false;
     }
@@ -423,5 +427,8 @@ chrome.runtime.onMessage.addListener(debounce(request => {
     }
     if (request.hasOwnProperty("enabled")) {
         chrome.runtime.reload()
+    }
+    if (request.hasOwnProperty("denylist_updated")) {
+        loadDenyList().catch(reason => console.error(reason));
     }
 }, 250));
