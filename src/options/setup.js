@@ -26,15 +26,22 @@ function isSetupEnabled(def) {
     });
 }
 
+function loadSetupOption(settingName, defaultValue, onSettingChanged) {
+    let $setting = document.getElementById(settingName);
+    chrome.storage.local.get({[settingName]: defaultValue}, settings => {
+        $setting.value = settings[settingName];
+    });
+    $setting.addEventListener("change", () => {
+        chrome.storage.local.set({[settingName]: $setting.value});
+        if (typeof onSettingChanged === 'function') {
+            onSettingChanged();
+        }
+    });
+}
+
 function loadSetupOptions() {
-    let $margin = document.getElementById("margin");
-    chrome.storage.local.get({"margin": 2}, settings => {
-        $margin.value = settings.margin;
-    });
-    $margin.addEventListener("change", () => {
-        chrome.storage.local.set({"margin": $margin.value});
-        chrome.runtime.sendMessage({"retile": true});
-    });
+    loadSetupOption('margin', 2, () => { chrome.runtime.sendMessage({"retile": true})});
+    loadSetupOption('denylist', DenyList.defaults(), () => { chrome.runtime.sendMessage({"denylist_updated": true})});
 
     let $tbody = document.getElementById("keys");
     chrome.commands.getAll(function(commands) {

@@ -1,5 +1,5 @@
 try {
-    importScripts("./is_chromebook.js");
+    importScripts("./is_chromebook.js", "./options/deny_list.js");
 } catch (e) {
     console.log(e);
 }
@@ -16,11 +16,6 @@ const WindowState = {
     TILED: "tiled",
     FLOATING: "floating"
 };
-
-const SingleTabIgnoreList = {
-    BLANK: "about:blank",
-    CHROME_REMOTE_DESKTOP: "https://remotedesktop.google.com/"
-}
 
 const WINTYPES = {"populate":  true, "windowTypes": Object.values(chrome.windows.WindowType)};
 const LAYOUTS = new Map([
@@ -78,8 +73,79 @@ const LAYOUTS = new Map([
             "height": height - 2*margin
         };
     }],
+    ["Ultrawide", function(windowIndex, windowCount, mWindowCount, area, margin, splitPct) {
+        let centerWidth = Math.round((area.width+margin) * splitPct);
+        let sideWidth = Math.round((area.width+margin) * (1-splitPct) / 2);
+
+        if (windowIndex < mWindowCount) {
+            let cCount = Math.min(windowCount, mWindowCount);
+            let cHeight = Math.round((area.height-margin) / cCount);
+            return {
+                "top":    area.top + margin + (cHeight * windowIndex),
+                "left":   area.left + sideWidth,
+                "width":  centerWidth - 2*margin,
+                "height": cHeight - margin
+            };
+        }
+
+        let sideWindows = windowCount - mWindowCount;
+        let leftWindows = Math.ceil(sideWindows / 2);
+        let rightWindows = Math.floor(sideWindows / 2);
+        let isLeft = (windowIndex - mWindowCount) % 2 === 0;
+        let sideIndex = Math.floor((windowIndex - mWindowCount) / 2);
+
+        if (isLeft) {
+            let cols = leftWindows > 2 ? 2 : 1;
+            let rows = Math.ceil(leftWindows / cols);
+            let col = sideIndex % cols;
+            let row = Math.floor(sideIndex / cols);
+
+            let lWidth = Math.round(sideWidth / cols);
+            let lHeight = Math.round((area.height-margin) / rows);
+            
+            let finalWidth = lWidth;
+            if (cols === 2 && sideIndex === leftWindows - 1 && leftWindows % 2 !== 0) {
+                finalWidth = sideWidth;
+            }
+
+            return {
+                "top":    area.top + margin + (lHeight * row),
+                "left":   area.left + margin + (lWidth * col),
+                "width":  finalWidth - 2*margin,
+                "height": lHeight - margin
+            };
+        } else {
+            let cols = rightWindows > 2 ? 2 : 1;
+            let rows = Math.ceil(rightWindows / cols);
+            let col = sideIndex % cols;
+            let row = Math.floor(sideIndex / cols);
+
+            let rWidth = Math.round(sideWidth / cols);
+            let rHeight = Math.round((area.height-margin) / rows);
+            
+            let finalWidth = rWidth;
+            if (cols === 2 && sideIndex === rightWindows - 1 && rightWindows % 2 !== 0) {
+                finalWidth = sideWidth;
+            }
+
+            return {
+                "top":    area.top + margin + (rHeight * row),
+                "left":   area.left + sideWidth + centerWidth + (rWidth * col),
+                "width":  finalWidth - 2*margin,
+                "height": rHeight - margin
+            };
+        }
+    }],
 ]);
 
+async function loadDenyList() {
+    await getSettings({ [`denylist`]: DenyList.defaults() }).then(settings => {
+        DENY_LIST.splice(0, DENY_LIST.length, ...DenyList.parse(settings['denylist']));
+    })
+}
+
+const DENY_LIST = [];
+loadDenyList();
 
 let allDisplays = new Array();
 class Display {
@@ -91,13 +157,14 @@ class Display {
         this._layout = null;
         this._main_wins = null;
         this._split_pct = null;
+        this._deny_list = [];
     }
     init() {
         return new Promise(resolve => {
             getSettings({
                 [`layout_${this.id}`]: null,
                 [`main_wins_${this.id}`]: 1,
-                [`split_pct_${this.id}`]: 0.5
+                [`split_pct_${this.id}`]: 0.5,
             }).then(settings => {
                 console.log("Loaded Settings", settings);
                 this._layout = settings[`layout_${this.id}`];
@@ -169,7 +236,7 @@ class Display {
 
     isInSingleTabIgnoreList(win) {
         if (win && win.tabs && win.tabs.length === 1) {
-            return Object.values(SingleTabIgnoreList).some(ignoredUrl => win.tabs[0].url.startsWith(ignoredUrl));
+            return DENY_LIST.some(ignoredUrl => win.tabs[0].url.startsWith(ignoredUrl));
         }
         return false;
     }
@@ -423,5 +490,8 @@ chrome.runtime.onMessage.addListener(debounce(request => {
     }
     if (request.hasOwnProperty("enabled")) {
         chrome.runtime.reload()
+    }
+    if (request.hasOwnProperty("denylist_updated")) {
+        loadDenyList().catch(reason => console.error(reason));
     }
 }, 250));
