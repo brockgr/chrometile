@@ -414,7 +414,7 @@ function moveToDisplay(index) {
             let a = allDisplays[index].area;
             getFocused().then(f => {
                 chrome.windows.update(f.win.id, {"left": a.left, "top": a.top}, win => {
-                    this.window_ids.unshift(f.win.id); // Make it the first in the list
+                    allDisplays[index].window_ids.unshift(f.win.id); // Make it the first in the list
                     tileWindows().then(resolve);
                 })
             })
